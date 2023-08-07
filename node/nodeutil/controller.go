@@ -338,7 +338,7 @@ func NewNode(name string, newProvider NewProviderFunc, opts ...NodeOpt) (*Node, 
 	configMapInformer := scmInformerFactory.Core().V1().ConfigMaps()
 	serviceInformer := scmInformerFactory.Core().V1().Services()
 	pvInformer := scmInformerFactory.Core().V1().PersistentVolumes()
-	pvcInformer := podInformerFactory.Core().V1().PersistentVolumeClaims()
+	pvcInformer := scmInformerFactory.Core().V1().PersistentVolumeClaims()
 
 	p, np, err := newProvider(ProviderConfig{
 		Pods:                   podInformer.Lister(),
