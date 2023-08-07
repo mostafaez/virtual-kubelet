@@ -44,10 +44,13 @@ type Provider interface {
 
 // ProviderConfig holds objects created by NewNodeFromClient that a provider may need to bootstrap itself.
 type ProviderConfig struct {
-	Pods       corev1listers.PodLister
-	ConfigMaps corev1listers.ConfigMapLister
-	Secrets    corev1listers.SecretLister
-	Services   corev1listers.ServiceLister
+	Pods                   corev1listers.PodLister
+	ConfigMaps             corev1listers.ConfigMapLister
+	Secrets                corev1listers.SecretLister
+	Services               corev1listers.ServiceLister
+	PersistentVolumes      corev1listers.PersistentVolumeLister
+	PersistentVolumeClaims corev1listers.PersistentVolumeClaimLister
+
 	// Hack to allow the provider to set things on the node
 	// Since the provider is bootstrapped after the node object is configured
 	// Primarily this is due to carry-over from the pre-1.0 interfaces that expect the provider instead of the direct *caller* to configure the node.

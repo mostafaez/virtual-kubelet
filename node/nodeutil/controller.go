@@ -337,13 +337,17 @@ func NewNode(name string, newProvider NewProviderFunc, opts ...NodeOpt) (*Node, 
 	secretInformer := scmInformerFactory.Core().V1().Secrets()
 	configMapInformer := scmInformerFactory.Core().V1().ConfigMaps()
 	serviceInformer := scmInformerFactory.Core().V1().Services()
+	pvInformer := scmInformerFactory.Core().V1().PersistentVolumes()
+	pvcInformer := podInformerFactory.Core().V1().PersistentVolumeClaims()
 
 	p, np, err := newProvider(ProviderConfig{
-		Pods:       podInformer.Lister(),
-		ConfigMaps: configMapInformer.Lister(),
-		Secrets:    secretInformer.Lister(),
-		Services:   serviceInformer.Lister(),
-		Node:       &cfg.NodeSpec,
+		Pods:                   podInformer.Lister(),
+		ConfigMaps:             configMapInformer.Lister(),
+		Secrets:                secretInformer.Lister(),
+		Services:               serviceInformer.Lister(),
+		Node:                   &cfg.NodeSpec,
+		PersistentVolumes:      pvInformer.Lister(),
+		PersistentVolumeClaims: pvcInformer.Lister(),
 	})
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating provider")
