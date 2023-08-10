@@ -307,6 +307,7 @@ func NewNode(name string, newProvider NewProviderFunc, opts ...NodeOpt) (*Node, 
 	}
 
 	cfg.Client = defaultClientFromEnv(cfg.KubeconfigPath)
+	fmt.Printf("[PC] cfg.KubeconfigPath '%s'\r\n", cfg.KubeconfigPath)
 
 	for _, o := range opts {
 		if err := o(&cfg); err != nil {
@@ -320,6 +321,14 @@ func NewNode(name string, newProvider NewProviderFunc, opts ...NodeOpt) (*Node, 
 
 	if cfg.Client == nil {
 		return nil, errors.New("no client provided")
+	}
+
+	fmt.Println("[PC] List pods")
+	pods, err := cfg.Client.CoreV1().Pods("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		fmt.Println("[PC] List pods failed")
+	} else {
+		fmt.Printf("[PC] Pods read %d \r\n", len(pods.Items))
 	}
 
 	podInformerFactory := informers.NewSharedInformerFactoryWithOptions(
