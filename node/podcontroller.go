@@ -402,15 +402,21 @@ func (pc *PodController) Run(ctx context.Context, podSyncWorkers int) (retErr er
 		}
 	}
 
+	log.G(ctx).Info("AddEventHandler")
+
 	_, err := pc.podsInformer.Informer().AddEventHandler(eventHandler)
 	if err != nil {
 		log.G(ctx).Error(err)
 	}
 
+	log.G(ctx).Info("deleteDanglingPods - start")
+
 	// Perform a reconciliation step that deletes any dangling pods from the provider.
 	// This happens only when the virtual-kubelet is starting, and operates on a "best-effort" basis.
 	// If by any reason the provider fails to delete a dangling pod, it will stay in the provider and deletion won't be retried.
 	pc.deleteDanglingPods(ctx, podSyncWorkers)
+
+	log.G(ctx).Info("deleteDanglingPods - end")
 
 	log.G(ctx).Info("starting workers")
 	group := &wait.Group{}
@@ -581,14 +587,19 @@ func (pc *PodController) deleteDanglingPods(ctx context.Context, threadiness int
 	ctx, span := trace.StartSpan(ctx, "deleteDanglingPods")
 	defer span.End()
 
+	log.G(ctx).Info("Get pods - start")
+
 	// Grab the list of pods known to the provider.
 	pps, err := pc.provider.GetPods(ctx)
 	if err != nil {
+		log.G(ctx).Info("Get pods - failed")
+
 		err := pkgerrors.Wrap(err, "failed to fetch the list of pods from the provider")
 		span.SetStatus(err)
 		log.G(ctx).Error(err)
 		return
 	}
+	log.G(ctx).Info("Get pods - done")
 
 	// Create a slice to hold the pods we will be deleting from the provider.
 	ptd := make([]*corev1.Pod, 0)
